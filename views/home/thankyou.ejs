@@ -1,0 +1,15 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+<%- include("layouts/header"); -%>
+    <body>
+            <main>
+                <div class="container">
+                    <h4 class="text-center">Thanks for purchasing</h4>
+                </div>
+            </main>
+            <%- include("layouts/script"); -%>
+            <script type="text/javascript">
+                localStorage.removeItem('cart');
+            </script>
+    </body>
+</html>
