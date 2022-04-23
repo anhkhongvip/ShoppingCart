@@ -1,4 +1,5 @@
 const Product = require("../models/Product")
+const OrderDetail = require("../models/OrderDetail")
 class ProductController {
 
     //[GET]
@@ -107,6 +108,33 @@ class ProductController {
             }
         }
 
+    }
+
+    //[delete]
+    async delete(req, res, next) {
+        const { productId } = req.body;
+        const orderDetail = await OrderDetail.findOne({ productId })
+        if(orderDetail)
+        { 
+            return res.status(400).json({
+                message : "Can't delete this product"
+            })
+        }
+        else {
+            try{
+                await Product.deleteOne({ _id: productId })  
+                return res.status(200).json({
+                    message : "Delete successfully"
+                })
+            }
+            catch(err){
+                return res.status(500).json({
+                    error : err
+                })
+            }
+            
+            
+        }
     }
 }
 

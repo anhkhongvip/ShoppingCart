@@ -30,7 +30,14 @@ $(function() {
 				let data = response;
 				if(data.isActive)
 				{
-					window.location = '/';
+					if(data.account.isAdmin)
+					{ 
+						window.location ='/admin/users'
+					}
+					else {
+						window.location = '/';
+					}
+					
 				}
 				else {
 					window.location = '/email/notify';

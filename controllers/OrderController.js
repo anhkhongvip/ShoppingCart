@@ -1,6 +1,7 @@
 const Order = require("../models/Order")
 const Account = require("../models/Account")
 class OrderController {
+
     async getOrderList(req, res, next) {
         let perPage = 5; //số lượng hiển thị trên 1 trang
         let page = Number(req.params.page) || 1;
@@ -17,12 +18,24 @@ class OrderController {
         })
     }
 
+    async cancelOrder(req, res, next)
+    { 
+        const orderId = req.params.orderId;
+        const order = await Order.findOneAndUpdate({ _id: orderId },{
+            status: "0"
+        }, {new : true});
+        return res.status(200).json({
+            message: "OK", 
+            order
+        })
+    }
+
     async getOrderByUser(req, res, next) {
         const account = await Account.findOne({userId :req.userId})
         let perPage = 1; //số lượng hiển thị trên 1 trang
         let page = Number(req.params.page) || 1;
         Order.find({ email: account.email }).skip((perPage * page) - perPage).limit(perPage).exec((err, orders) => {
-            Order.countDocuments((err, count) => {
+            Order.countDocuments({ email: account.email }, (err, count) => {
                 if (err) return res.status(500).json({ error : err });
                 return res.status(200).json({
                     count,
@@ -32,10 +45,6 @@ class OrderController {
                 })
             });
         })
-    }
-
-    async cancelOrder(res, req, next) {
-
     }
 }
 

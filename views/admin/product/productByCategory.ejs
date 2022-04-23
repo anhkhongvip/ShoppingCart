@@ -304,6 +304,40 @@
             <!-- .modal-dialog -->
         </div>
         <!-- .modal -->
+        <!-- @@ Profile Confirm Modal @e -->
+        <div class="modal fade" role="dialog" id="confirm-remove">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                <div class="modal-content">
+                    <a href="#" class="close" data-dismiss="modal"><em class="icon ni ni-cross-sm"></em></a>
+                    <div class="modal-body modal-body-lg">
+                        <h5 class="title">Are you sure remove it ?</h5>
+                        <!-- .nav-tabs -->
+                        <div class="tab-content">
+                            <div class="tab-pane active">
+                                <div class="row gy-4">
+                                    <div class="col-12">
+                                        <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                            <li>
+                                                <a href="javascript:void(0)" class="btn btn-lg btn-outline-danger"
+                                                    data-id="" id="DeleteProduct">Delete</a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0)" data-dismiss="modal" class="link link-light">Cancel</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- .tab-content -->
+                    </div>
+                    <!-- .modal-body -->
+                </div>
+                <!-- .modal-content -->
+            </div>
+            <!-- .modal-dialog -->
+        </div>
+        <!-- .modal -->
         <%- include("../layouts/script"); -%>
             <script type="text/javascript">
                 let currentPage;
@@ -386,6 +420,35 @@
                                 console.log(error);
                             })
                     })
+
+                    $("#DeleteProduct").click(function () {
+                        let productId = $(this).attr('data-id');
+                        console.log(productId);
+                        $.ajax({
+                            type: 'DELETE',
+                            url: location.protocol + '//' + location.host + `/api/products`,
+                            data: { productId }
+                        })
+                        .done(function (response) {
+                            $("#confirm-remove").modal('hide')
+                            Swal.fire({
+                                    icon: "success",
+                                    title: "Delete successfully!",
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                });
+                            selectPage(1)
+                            
+                        })
+                        .fail(function (error) {
+                            $("#confirm-remove").modal('hide')
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: "Can't delete this product",
+                            })
+                        })
+                    })
                 })
 
                 function btnEdit(id) {
@@ -399,6 +462,10 @@
                     $("#stock-update").val(stock);
                     $("#label-image-update").text("Choose file");
                     $(`#categoryId-update option[value=${categoryId}]`).attr('selected', 'selected');
+                }
+
+                function btnDelete(id){
+                    $("#DeleteProduct").attr("data-id", id);
                 }
                 
                 function prevPage() {
@@ -461,7 +528,7 @@
                                     '                                                                                            </li>' +
                                     '' +
                                     '                                                                                            <li>' +
-                                    '                                                                                                <a href="#"><em' +
+                                    `                                                                                                <a href="javascript:void(0)" data-toggle="modal" data-target="#confirm-remove" onclick="btnDelete(\'${item._id}\')"><em` +
                                     '                                                                                                        class="icon ni ni-trash"></em><span>Remove' +
                                     '                                                                                                        Product</span></a>' +
                                     '                                                                                            </li>' +

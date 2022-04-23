@@ -115,11 +115,11 @@
                                                       class="icon ni ni-edit"></em><span>Edit Category</span></a>
                                                 </li>
                                                 <li>
-                                                  <a href="#"><em class="icon ni ni-eye"></em><span>View
+                                                  <a href="/admin/<%= categories[i]._id %>/products"><em class="icon ni ni-eye"></em><span>View
                                                       Products</span></a>
                                                 </li>
                                                 <li>
-                                                  <a href="#"><em class="icon ni ni-trash"></em><span>Remove
+                                                  <a href="javascript:void(0)" data-toggle="modal" data-target="#confirm-remove" onclick="btnDelete('<%= categories[i]._id %>')"><em class="icon ni ni-trash"></em><span>Remove
                                                       Category</span></a>
                                                 </li>
                                               </ul>
@@ -240,10 +240,46 @@
     </div>
     <!-- .modal -->
 
+    <!-- @@ Profile Confirm Modal @e -->
+    <div class="modal fade" role="dialog" id="confirm-remove">
+      <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+          <div class="modal-content">
+              <a href="#" class="close" data-dismiss="modal"><em class="icon ni ni-cross-sm"></em></a>
+              <div class="modal-body modal-body-lg">
+                  <h5 class="title">Are you sure remove it ?</h5>
+                  <!-- .nav-tabs -->
+                  <div class="tab-content">
+                      <div class="tab-pane active">
+                          <div class="row gy-4">
+                              <div class="col-12">
+                                  <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                      <li>
+                                          <a href="javascript:void(0)" class="btn btn-lg btn-outline-danger"
+                                              data-id="" id="DeleteProduct">Delete</a>
+                                      </li>
+                                      <li>
+                                          <a href="javascript:void(0)" data-dismiss="modal" class="link link-light">Cancel</a>
+                                      </li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- .tab-content -->
+              </div>
+              <!-- .modal-body -->
+          </div>
+          <!-- .modal-content -->
+      </div>
+      <!-- .modal-dialog -->
+  </div>
+  <!-- .modal -->
+
 
     <%- include("../layouts/script"); -%>
       <script type="text/javascript">
         $(document).ready(function () {
+
           $("#addNewCategory").click(() => {
             let nameCategory = $("#nameCategory").val();
             let brand = $("#brand").val();
@@ -318,11 +354,11 @@
                     '                                                      class="icon ni ni-edit"></em><span>Edit Category</span></a>' +
                     "                                                </li>" +
                     "                                                <li>" +
-                    '                                                  <a href="#"><em class="icon ni ni-eye"></em><span>View' +
+                    `                                                  <a href="/admin/${item._id}/products"><em class="icon ni ni-eye"></em><span>View` +
                     "                                                      Products</span></a>" +
                     "                                                </li>" +
                     "                                                <li>" +
-                    '                                                  <a href="#"><em class="icon ni ni-trash"></em><span>Remove' +
+                    `                                                  <a data-toggle="modal" data-target="#confirm-remove" onclick="btnDelete(\'${item._id}\')"><em class="icon ni ni-trash"></em><span>Remove` +
                     "                                                      Category</span></a>" +
                     "                                                </li>" +
                     "                                              </ul>" +
@@ -367,7 +403,35 @@
               })
               .fail(function (response) { });
           });
+
+          $("#DeleteProduct").click(function () {
+                        let categoryId = $(this).attr('data-id');
+                        $.ajax({
+                            type: 'DELETE',
+                            url: location.protocol + '//' + location.host + `/api/categories`,
+                            data: { categoryId }
+                        })
+                        .done(function (response) {
+                            $("#confirm-remove").modal('hide')
+                            Swal.fire({
+                                    icon: "success",
+                                    title: "Delete successfully!",
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                });
+                            loadData()
+                        })
+                        .fail(function (error) {
+                            $("#confirm-remove").modal('hide')
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: "Can't delete this category",
+                            })
+                        })
+                    })
         });
+
         function btnEdit(id) {
           let name = $(`#${id} .nameCategory`).text().trim();
           let brand = $(`#${id} .brand`).text().trim();
@@ -376,6 +440,11 @@
           $("#brand-name").val(brand);
           $("#btn-update-category").attr("data-id", id);
         }
+
+        function btnDelete(id){
+            $("#DeleteProduct").attr("data-id", id);
+        }
+
       </script>
   </body>
 

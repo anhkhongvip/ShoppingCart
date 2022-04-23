@@ -19,6 +19,24 @@ class UserController {
        
     }
 
+    async updateUserAdmin(req, res, next){
+        const account_id = req.params.id;
+        const { username, phone_number, isAdmin } = req.body;
+        const account = await Account.findOneAndUpdate({_id: account_id}, {
+            isAdmin
+        }, {new : true});
+
+        const user = await User.findOneAndUpdate({_id: account.userId }, {
+            userName : username,
+            phoneNumber : phone_number
+        }, {new : true})
+        return res.status(200).json({
+            message: "Update successfully",
+            account,
+            user
+        })
+    }
+
     //[GET]
     getListUser(req, res, next){
         let perPage = 5; //số lượng hiển thị trên 1 trang

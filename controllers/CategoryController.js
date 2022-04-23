@@ -1,4 +1,5 @@
-const Category = require("../models/Category")
+const Category = require("../models/Category");
+const Product = require("../models/Product");
 class CategoryController {
     async getAllCategories(req, res, next) {
         try {
@@ -58,6 +59,33 @@ class CategoryController {
             return res.status(400).json({
                 message: "Updated fail"
             })
+        }
+    }
+
+    //[Delete]
+    async delete(req, res, next) {
+        const { categoryId } = req.body;
+        const product = await Product.findOne({ categoryId })
+        if(product)
+        { 
+            return res.status(400).json({
+                message : "Can't delete this product"
+            })
+        }
+        else {
+            try{
+                await Category.deleteOne({ _id: categoryId })  
+                return res.status(200).json({
+                    message : "Delete successfully"
+                })
+            }
+            catch(err){
+                return res.status(500).json({
+                    error : err
+                })
+            }
+            
+            
         }
     }
 }

@@ -102,83 +102,109 @@
                                 contentType: 'json',
                                 dataType: "json",
                             })
-                                .done(function (response) {
-                                    let content = "";
-                                    let myDate;
-                                    let buttonStatus;
-                                    let status;
-                                    response.orders.forEach(item => {
-                                        myDate = new Date(item.createdAt);
-                                        myDate = myDate.toLocaleString("vi-VN").split(',')[1];
-                                        if (item.status == "0") {
-                                            status = "<span style=\"color: rgb(255, 0, 0);\">Cancelled</span>";
-                                            buttonStatus = "";
-                                        }
-                                        else if (item.status == "1") {
-                                            status = "<span style=\"color: #ffbe76;\">Pending</span>";
-                                            buttonStatus = `<a class="btn btn-info btn-payment-order mr-5" href="/payment/${item._id}" role="button" style="color: white;">Payment</a>` +
-                                                '<a class="btn btn-danger btn-cancel-order" href="javascript:void(0)" role="button">Cancel Order</a>';
-                                        }
-                                        else {
-                                            status = "<span style=\"color: #badc58;\">Complete</span>";
-                                            buttonStatus = "";
-                                        }
-                                        content += '' +
-                                            '<tr>' +
-                                            `                                                <td class="order-id-val">#${item._id}</td>` +
-                                            `                                                <td class="order-date-val"><span>${myDate}</span></td>` +
-                                            '                                                <td class="order-amount-val">' +
-                                            `                                                    <span>$${item.total_money}</span>` +
-                                            '                                                </td>' +
-                                            `                                                <td class="order-status-val">${status}</td>` +
-                                            '                                                <td class="order-action-btn">' +
-                                            `${buttonStatus}` +
-                                            '                                                </td>' +
-                                            '                                            </tr>' +
-                                            '';
-                                    })
-                                    pagination(response)
-                                    $(".table-content.table-responsive tbody").html(content);
+                            .done(function (response) {
+                                currentPage = response.currentPage;
+                                totalPages = response.totalPages;
+                                let content = "";
+                                let myDate;
+                                let buttonStatus;
+                                let status;
+                                response.orders.forEach(item => {
+                                    myDate = new Date(item.createdAt);
+                                    myDate = myDate.toLocaleString("vi-VN").split(',')[1];
+                                    if (item.status == "0") {
+                                        status = "<span style=\"color: rgb(255, 0, 0);\">Cancelled</span>";
+                                        buttonStatus = "";
+                                    }
+                                    else if (item.status == "1") {
+                                        status = "<span style=\"color: #ffbe76;\">Pending</span>";
+                                        buttonStatus = `<a class="btn btn-info btn-payment-order mr-5" href="/payment/${item._id}" role="button" style="color: white;">Payment</a>` +
+                                            `<a class="btn btn-danger btn-cancel-order" onclick="cancelOrder(\'${item._id}\')" href="javascript:void(0)" role="button">Cancel Order</a>`;
+                                    }
+                                    else {
+                                        status = "<span style=\"color: #badc58;\">Complete</span>";
+                                        buttonStatus = "";
+                                    }
+                                    content += '' +
+                                        `<tr id="order-${item._id}">` +
+                                        `                                                <td class="order-id-val">#${item._id}</td>` +
+                                        `                                                <td class="order-date-val"><span>${myDate}</span></td>` +
+                                        '                                                <td class="order-amount-val">' +
+                                        `                                                    <span>$${item.total_money}</span>` +
+                                        '                                                </td>' +
+                                        `                                                <td class="order-status-val">${status}</td>` +
+                                        '                                                <td class="order-action-btn">' +
+                                        `${buttonStatus}` +
+                                        '                                                </td>' +
+                                        '                                            </tr>' +
+                                        '';
                                 })
-                                .fail(function (response) {
+                                pagination(response)
+                                $(".table-content.table-responsive tbody").html(content);
+                            })
+                            .fail(function (response) {
 
-                                })
+                            })
+                        }
 
-                            function nextPage() {
-                                if (currentPage < totalPages) {
-                                    currentPage++;
-                                    selectPage(currentPage)
-                                }
+                        function cancelOrder(orderId)
+                        {
+                            $.ajax({
+                                type: "PUT",
+                                url: location.protocol + '//' + location.host + `/api/orderCancel/${orderId}`,
+                                contentType: 'json',
+                                dataType: "json",
+                                data: { orderId }
+                            })
+                            .done(function (response) {
+                                console.log(response);
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Cancel Order successfully!",
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                });
+                                selectPage(1);
+                            })
+                            .fail(function (response) {
+
+                            })
+                        }
+
+                        function nextPage() {
+                            if (currentPage < totalPages) {
+                                currentPage++;
+                                selectPage(currentPage)
                             }
+                        }
 
-                            function pagination(response) {
-                                let data = "";
-                                if (response.currentPage > 1) {
-                                    data += '' +
-                                        '<li>' +
-                                        '                                                        <a href="javascript:void(0);" onclick="prevPage()">' +
-                                        '                                                            <i class="far fa-angle-left"></i>' +
-                                        '                                                        </a>' +
-                                        '                                                    </li>' +
-                                        '';
-                                }
-                                for (let i = 0; i < response.totalPages; i++) {
-                                    data += '' +
-                                        '<li>' +
-                                        '                                                        <a href="javascript:void(0);" onclick="selectPage(\'' + (i + 1) + "')\"' >" + (i + 1) + "</a>" +
-                                        '                                                    </li>' +
-                                        '';
-                                }
-                                if (response.currentPage != response.totalPages && response.totalPages > 0) {
-                                    data += '' +
-                                        '<li>' +
-                                        '                                                        <a href="javascript:void(0);" onclick="nextPage()">' +
-                                        '                                                            <i class="far fa-angle-right"></i>' +
-                                        '                                                        </a>' +
-                                        '                                                    </li>' +
-                                        '';
-                                }
-                                $(".basic-pagination nav ul").html(data);
+                        function pagination(response) {
+                            let data = "";
+                            if (response.currentPage > 1) {
+                                data += '' +
+                                    '<li>' +
+                                    '                                                        <a href="javascript:void(0);" onclick="prevPage()">' +
+                                    '                                                            <i class="far fa-angle-left"></i>' +
+                                    '                                                        </a>' +
+                                    '                                                    </li>' +
+                                    '';
                             }
+                            for (let i = 0; i < response.totalPages; i++) {
+                                data += '' +
+                                    '<li>' +
+                                    '                                                        <a href="javascript:void(0);" onclick="selectPage(\'' + (i + 1) + "')\"' >" + (i + 1) + "</a>" +
+                                    '                                                    </li>' +
+                                    '';
+                            }
+                            if (response.currentPage != response.totalPages && response.totalPages > 0) {
+                                data += '' +
+                                    '<li>' +
+                                    '                                                        <a href="javascript:void(0);" onclick="nextPage()">' +
+                                    '                                                            <i class="far fa-angle-right"></i>' +
+                                    '                                                        </a>' +
+                                    '                                                    </li>' +
+                                    '';
+                            }
+                            $(".basic-pagination nav ul").html(data);
                         }
                     </script>

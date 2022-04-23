@@ -17,6 +17,10 @@ router.route('/users/:page')
     .get(UserController.getListUser)
 
 
+router.route('/admin/users/:id')
+    .put(UserController.updateUserAdmin)
+
+
 
 // route [api/category]
 // verify role
@@ -24,6 +28,7 @@ router.route('/categories')
     .get(CategoryController.getAllCategories)
     .post(CategoryController.create)
     .put(CategoryController.update)
+    .delete(CategoryController.delete)
 
 // route [api/products/:page]
 router.route('/products/:page').get(ProductController.getProducts) // lấy tất cả ko cần phụ thuộc category
@@ -32,6 +37,7 @@ router.route('/products/:page').get(ProductController.getProducts) // lấy tấ
 router.route('/products')
     .post(upload.single('image'), ProductController.create)
     .put(upload.single('image'), ProductController.update)
+    .delete(ProductController.delete)
 
 
 
@@ -41,7 +47,6 @@ router.route('/:categoryId/products/:page').get(ProductController.getProductsByC
 // route [api/orders/:page]
 router.route('/orders/:page').get(OrderController.getOrderList)
 
-
 // route [api/checkout]
 router.route('/checkout').post(CheckoutController.order)
 
@@ -50,4 +55,9 @@ router.route('/transaction/:orderId').post(CheckoutController.transaction)
 
 // route [api/ordersByUser/:page]
 router.route('/ordersByUser/:page').get(authTokenMiddleware, OrderController.getOrderByUser);
+
+// route [api/orderCancel/:orderId]
+router.route('/orderCancel/:orderId').put(authTokenMiddleware, OrderController.cancelOrder);
+
+
 module.exports = router;

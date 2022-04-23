@@ -21,7 +21,7 @@ class LoginController {
           userGlobal = await User.findById(account.userId);
           return res
             .status(200)
-            .json({ message: "OK", isActive: account.status });
+            .json({ message: "OK", isActive: account.status, account });
         } else {
           return res.status(400).json({
             error: [{ key: "password", err: " Email or Password not match" }],
